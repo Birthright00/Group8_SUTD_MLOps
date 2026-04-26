@@ -8,7 +8,7 @@ os.environ['PYTHONIOENCODING'] = 'utf-8'
 # Run modal deploy with output suppression and error handling
 try:
     result = subprocess.run(
-        ["modal", "deploy", "modal_updated_complete.py"],
+        [sys.executable, "-m", "modal", "deploy", "modal_updated_complete.py"],
         capture_output=True,
         encoding='utf-8',
         errors='replace'

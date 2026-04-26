@@ -8,7 +8,7 @@
 ```bash
 python proxy_server.py
 ```
-Expected output: `Running on port: 4001` (or next available port)
+Expected output: `Running on port: 4000` (or next available port)
 Purpose: Handles 40-minute timeout covering Modal cold start + sequential editing
 Note: Auto-discovers an available port and writes it to `.proxy-port`
 
@@ -125,27 +125,16 @@ Unknown styles fall back to a neutral `STYLE_GUIDANCE_FALLBACK` block that keeps
   material / finish / colour / cultural-reference examples in the **analysis prompt**
   (`build_analysis_prompt`). Prompts with no recognised style fall back to
   `STYLE_GUIDANCE_FALLBACK` (generic vocabulary, same structure).
-- Raw output: `design_review.review_markdown` is produced in **two sections in
-  one chatbot call, JSON-first to survive truncation**:
-  1. A machine-readable JSON block wrapped in sentinels (emitted FIRST so it
-     can't get cut off when the room has many detected objects):
-     ```
-     <<<POLISH_JSON>>>
-     { "sofa": "...", "wall": "...", "table": "..." }
-     <<<END_POLISH_JSON>>>
-     ```
-  2. A short `### Summary` paragraph (3–4 sentences) describing the overall
-     room's palette, light quality, and sensory mood. Rendered in the
-     ExpertCritique panel.
-  Per-object markdown critique was dropped because it's now redundant with the
-  side-by-side Suggested Edits table, and the verbose per-object blocks were
-  blowing through the token budget and starving the JSON block.
+- Raw output: `design_review.review_markdown` contains a machine-readable JSON
+  block wrapped in sentinels:
+  ```
+  <<<POLISH_JSON>>>
+  { "sofa": "...", "wall": "...", "table": "..." }
+  <<<END_POLISH_JSON>>>
+  ```
 - `extract_polished_prompts()` parses the JSON block first (robust, no regex
   drift), then falls back to regex-parsing each object's `Proposed:` line for
   anything the JSON missed. Result: `polished_prompts = {object: enriched_fill_prompt}`.
-- `strip_polish_sentinel()` removes the sentinel-wrapped JSON before
-  `review_markdown` is returned to the frontend, so users of the
-  ExpertCritique panel never see the raw tokens.
 - Merged result: `fill_prompts = {**edit_suggestions, **polished_prompts}`.
   Polished entries override raw ones; objects the chatbot skipped retain the
   raw VLM suggestion (a `[WARN]` is logged so format drift is visible in Modal logs).
@@ -179,8 +168,6 @@ Unknown styles fall back to a neutral `STYLE_GUIDANCE_FALLBACK` block that keeps
   the VLM suggestion in the Chatbot column (rendered in grey italic).
 - "Transformed Space": carousel of cumulative transformations, in `object_order`.
 - "Refinement Passes": per-object iteration viewer.
-- "Expert Analysis": the full markdown critique from `design_review.review_markdown`
-  (with the machine-readable sentinel block already stripped out).
 
 ---
 
@@ -236,12 +223,9 @@ and for any JSON parse failure.
 
 **`strip_polish_sentinel(review_markdown)`** — removes the
 `<<<POLISH_JSON>>> { ... } <<<END_POLISH_JSON>>>` block from the chatbot's
-output before it is returned to the frontend. The sentinel block now appears
-at the HEAD of the response (not the tail), so stripping it leaves the
-`### Summary` paragraph intact for the ExpertCritique panel. If the closing
-sentinel is missing (e.g. the chatbot drifted format), the function falls back
-to dropping everything from the opening sentinel onward — losing the summary
-is preferable to leaking raw JSON into the UI.
+output before it is returned to the frontend. If the closing sentinel is
+missing (e.g. the chatbot drifted format), the function falls back to
+dropping everything from the opening sentinel onward.
 
 **`STYLE_GUIDANCE` dict** — single source of truth for style-specific
 vocabulary consumed by both the chatbot system prompt and the analysis prompt.
@@ -427,7 +411,7 @@ interior-LLM-analysis/
     "table": "<polished if parsed, raw VLM suggestion otherwise>"
   },
   "design_review": {
-    "review_markdown": "### Reviewing Each Edit\n\n**sofa:**\n- Original: ...\n- Proposed: ...\n...",
+    "review_markdown": "<<<POLISH_JSON>>>{...}<<<END_POLISH_JSON>>>",
     "analysis_prompt": "..."
   },
   "vlm_output": { "...structured VLM payload..." },
@@ -453,11 +437,8 @@ interior-LLM-analysis/
 - `polished_prompts` — chatbot-enriched prompts, only for objects the parser matched.
 - `fill_prompts` — the merge (`{...edit_suggestions, ...polished_prompts}`) that
   FLUX actually consumed. Use this if you want to know what each edit was based on.
-- `design_review.review_markdown` — full structured critique from the chatbot,
-  rendered in the frontend's "Expert Analysis" panel. The machine-readable
-  `<<<POLISH_JSON>>> ... <<<END_POLISH_JSON>>>` tail the chatbot emits is
-  stripped server-side via `strip_polish_sentinel()` before the field is
-  returned, so only the human-readable markdown reaches the client.
+- `design_review.review_markdown` — chatbot output containing the machine-readable
+  `<<<POLISH_JSON>>> ... <<<END_POLISH_JSON>>>` block used to extract polished prompts.
 - `object_order` — authoritative editing sequence; trust this over dict key order.
 - `object_intermediates` — cumulative image state after each object's edit.
 - `iteration_details` — `INPAINT_CFG.iterations_per_object` refinement passes per

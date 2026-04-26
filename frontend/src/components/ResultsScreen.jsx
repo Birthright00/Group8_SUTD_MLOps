@@ -3,7 +3,6 @@ import TransformationCarousel from './TransformationCarousel';
 import IterationCarousel from './IterationCarousel';
 import ObjectsTable from './ObjectsTable';
 import SuggestionsTable from './SuggestionsTable';
-import ExpertCritique from './ExpertCritique';
 
 const ResultsScreen = ({ results, selectedImage, onReset }) => {
   const handleDownloadAll = () => {
@@ -100,9 +99,6 @@ const ResultsScreen = ({ results, selectedImage, onReset }) => {
         editSuggestions={results.editSuggestions}
         polishedPrompts={results.polishedPrompts}
       />
-
-      {/* Expert Critique */}
-      <ExpertCritique critique={results.chatbotCritique} />
 
       {/* Try Another Button */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-center">
