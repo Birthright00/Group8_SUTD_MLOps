@@ -1,0 +1,76 @@
+{
+  "best_global_step": 10,
+  "best_metric": 2.1249783039093018,
+  "best_model_checkpoint": "./qwen-interior-design-qlora/checkpoint-10",
+  "epoch": 5.0,
+  "eval_steps": 5,
+  "global_step": 10,
+  "is_hyper_param_search": false,
+  "is_local_process_zero": true,
+  "is_world_process_zero": true,
+  "log_history": [
+    {
+      "entropy": 2.1991243213415146,
+      "epoch": 2.6666666666666665,
+      "grad_norm": 2.390625,
+      "learning_rate": 8e-05,
+      "loss": 3.167728042602539,
+      "mean_token_accuracy": 0.4220213871449232,
+      "num_tokens": 7803.0,
+      "step": 5
+    },
+    {
+      "epoch": 2.6666666666666665,
+      "eval_entropy": 2.4229776859283447,
+      "eval_loss": 2.7953922748565674,
+      "eval_mean_token_accuracy": 0.4444444477558136,
+      "eval_num_tokens": 7803.0,
+      "eval_runtime": 0.7393,
+      "eval_samples_per_second": 4.058,
+      "eval_steps_per_second": 1.353,
+      "step": 5
+    },
+    {
+      "entropy": 2.3446376153400967,
+      "epoch": 5.0,
+      "grad_norm": 2.0625,
+      "learning_rate": 9.549150281252633e-06,
+      "loss": 2.367256736755371,
+      "mean_token_accuracy": 0.5008490149463926,
+      "num_tokens": 14620.0,
+      "step": 10
+    },
+    {
+      "epoch": 5.0,
+      "eval_entropy": 2.230929136276245,
+      "eval_loss": 2.1249783039093018,
+      "eval_mean_token_accuracy": 0.5420054197311401,
+      "eval_num_tokens": 14620.0,
+      "eval_runtime": 0.7851,
+      "eval_samples_per_second": 3.821,
+      "eval_steps_per_second": 1.274,
+      "step": 10
+    }
+  ],
+  "logging_steps": 5,
+  "max_steps": 10,
+  "num_input_tokens_seen": 0,
+  "num_train_epochs": 5,
+  "save_steps": 5,
+  "stateful_callbacks": {
+    "TrainerControl": {
+      "args": {
+        "should_epoch_stop": false,
+        "should_evaluate": false,
+        "should_log": false,
+        "should_save": true,
+        "should_training_stop": true
+      },
+      "attributes": {}
+    }
+  },
+  "total_flos": 125364814393344.0,
+  "train_batch_size": 4,
+  "trial_name": null,
+  "trial_params": null
+}

@@ -35,6 +35,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Auto-generated proxy port file
+.proxy-port
+
 # Node.js / Frontend
 node_modules/
 frontend/dist/

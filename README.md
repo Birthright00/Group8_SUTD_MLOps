@@ -4,20 +4,22 @@
 
 ### REQUIRED: Three Components
 
-**Terminal 1: Proxy Server (MUST BE RUNNING)**
+**Terminal 1: Proxy Server (START FIRST)**
 ```bash
 python proxy_server.py
 ```
-Expected output: `Running on http://127.0.0.1:4000`
+Expected output: `Running on port: 4001` (or next available port)
 Purpose: Handles 40-minute timeout covering Modal cold start + sequential editing
+Note: Auto-discovers an available port and writes it to `.proxy-port`
 
-**Terminal 2: Frontend (MUST BE RUNNING)**
+**Terminal 2: Frontend (START AFTER PROXY)**
 ```bash
 cd frontend
 npm run dev
 ```
-Expected output: `Local: http://localhost:3002/`
+Expected output: `Local: http://localhost:3000/`
 Purpose: Web interface
+Note: Reads proxy port from `.proxy-port` - must start after proxy server
 
 **One-Time: Deploy Modal Backend**
 ```bash
@@ -48,7 +50,7 @@ http://localhost:3002
 User Browser
     |
     v
-Local Proxy Server (localhost:4000, Flask, 40-min timeout)
+Local Proxy Server (auto-discovered port, Flask, 40-min timeout)
     |
     v
 Modal Serverless GPUs — modal_updated_complete.py
@@ -277,7 +279,8 @@ directly — they use `resolve_style_guidance(user_prompt)`,
 - Solution: Local Flask proxy whose long timeout matches the frontend and Modal ceilings.
 
 **Configuration:**
-- Port: 4000
+- Port: Auto-discovered (scans 4000-4100 for first available port)
+- Port file: `.proxy-port` (written on startup, read by Vite)
 - Timeout: 2400 seconds (40 minutes) — must match the frontend `fetchWithTimeout`
   value in `frontend/src/utils/api.js` and Modal's `@app.function(timeout=...)` on
   the `complete_pipeline` and `ImageGenerator` decorators.
@@ -288,13 +291,26 @@ directly — they use `resolve_style_guidance(user_prompt)`,
 **Key files:**
 - frontend/src/App.jsx: Main UI component
 - frontend/src/utils/api.js: API communication
-- frontend/src/config.js: Configuration
+- frontend/src/config.js: Configuration (reads from .env)
+- frontend/.env: Environment variables (gitignored)
+- frontend/.env.example: Template for .env
+- frontend/vite.config.js: Vite config (reads proxy port from `.proxy-port`)
 
-**Configuration (frontend/src/config.js):**
-```javascript
-export const USE_MODAL = false;  // Must be false to use proxy
-export const LOCAL_ANALYZE_URL = 'http://localhost:4000/api/analyze';
+**Configuration (frontend/.env):**
+```bash
+# Set to "true" for Modal (production), "false" for local proxy
+VITE_USE_MODAL=false
+
+# Modal endpoints (only used when VITE_USE_MODAL=true)
+VITE_MODAL_ANALYZE_URL=https://your-username--your-app.modal.run
+VITE_MODAL_CHAT_URL=https://your-username--your-chat.modal.run
+VITE_MODAL_EDIT_IMAGE_URL=https://your-username--your-edit.modal.run
 ```
+
+**Setup:**
+1. Copy `frontend/.env.example` to `frontend/.env`
+2. Fill in your Modal endpoint URLs
+3. Set `VITE_USE_MODAL=false` for local development with proxy
 
 **UI Structure:**
 
@@ -337,17 +353,20 @@ interior-LLM-analysis/
 |
 +-- modal_updated_complete.py      Main Modal backend (all 3 AI models) — this is what deploys
 +-- modal_complete.py              Earlier / legacy backend kept for reference; not deployed
-+-- proxy_server.py                Local CORS proxy server
++-- proxy_server.py                Local CORS proxy server (auto-discovers port)
 +-- deploy_utf8.py                 UTF-8 deployment wrapper (targets modal_updated_complete.py)
++-- .proxy-port                    Auto-generated port file (gitignored)
 +-- README.md                      This documentation file
 |
 +-- frontend/                      React frontend application
+|   +-- .env                      Environment variables (gitignored)
+|   +-- .env.example              Template for .env
 |   +-- src/
 |   |   +-- App.jsx               Main UI component
 |   |   +-- utils/api.js          API communication layer (extracts object_order)
-|   |   +-- config.js             Configuration (USE_MODAL = false)
+|   |   +-- config.js             Configuration (reads from .env)
 |   +-- package.json
-|   +-- vite.config.js
+|   +-- vite.config.js            Vite config (reads proxy port from .proxy-port)
 |
 +-- qwen25_vl_7b_objdesc_lora/    Vision model LoRA weights
 +-- qwen-interior-design-qlora/   Chatbot model LoRA weights
@@ -510,13 +529,18 @@ Frontend: Uses object_order array → Displays ['sofa', 'table', 'chair'] ✓
 
 ### Error: "Failed to fetch" / Connection Refused
 
-**Cause:** Proxy server not running
+**Cause:** Proxy server not running, or frontend started before proxy
 
 **Solution:**
 ```bash
+# 1. Start proxy first
 python proxy_server.py
+# Verify output shows: "Running on port: XXXX"
+
+# 2. Then restart frontend (to pick up the port)
+cd frontend
+npm run dev
 ```
-Verify output shows: `Running on http://127.0.0.1:4000`
 
 ### Error: Images not showing in frontend
 
@@ -573,9 +597,9 @@ objectOrder: objectOrder,
 **Cause:** Using Modal directly instead of proxy
 
 **Solution:**
-```javascript
-// frontend/src/config.js
-export const USE_MODAL = false;  // MUST be false
+```bash
+# frontend/.env
+VITE_USE_MODAL=false  # MUST be false for local proxy
 ```
 
 ### Error: CORS Policy / Access-Control-Allow-Origin
@@ -817,12 +841,14 @@ https://modal.com/apps/raintail0025/main/deployed/interior-design-complete
 # Deploy backend (when code changes)
 python deploy_utf8.py
 
-# Start proxy server (Terminal 1)
+# Start proxy server FIRST (Terminal 1)
 python proxy_server.py
+# Note: Creates .proxy-port file with auto-discovered port
 
-# Start frontend (Terminal 2)
+# Start frontend AFTER proxy (Terminal 2)
 cd frontend
 npm run dev
+# Note: Reads port from .proxy-port - must start after proxy
 
 # View Modal logs
 modal app logs interior-design-complete
@@ -835,17 +861,23 @@ modal app list
 
 When something goes wrong:
 
-1. **Check all 3 components running:**
+1. **Check all 3 components running (in order):**
    ```bash
-   # Proxy: Should show "Running on http://127.0.0.1:4000"
-   # Frontend: Should show "Local: http://localhost:3002/"
+   # Proxy: Should show "Running on port: XXXX"
+   # Frontend: Should show "Local: http://localhost:3000/"
    # Modal: Check https://modal.com/apps
    ```
 
 2. **Check configuration:**
-   ```javascript
-   // frontend/src/config.js
-   export const USE_MODAL = false;  // MUST be false
+   ```bash
+   # frontend/.env
+   VITE_USE_MODAL=false  # MUST be false for local proxy
+   ```
+
+3. **Check .proxy-port file exists:**
+   ```bash
+   # Should contain a port number (e.g., 4001)
+   cat .proxy-port
    ```
 
 3. **Check browser console (F12):**
@@ -885,11 +917,15 @@ every time the file is edited. Grep for the symbol in the file.
 - Modal app: `modal_updated_complete.py`
 - Proxy server: `proxy_server.py`
 - Deployment helper: `deploy_utf8.py`
+- Port file: `.proxy-port` (auto-generated, gitignored)
 
 **Frontend:**
 - Main UI: `frontend/src/App.jsx`
 - API layer: `frontend/src/utils/api.js`
-- Config: `frontend/src/config.js`
+- Config: `frontend/src/config.js` (reads from .env)
+- Environment: `frontend/.env` (gitignored)
+- Env template: `frontend/.env.example`
+- Vite config: `frontend/vite.config.js` (reads proxy port from `.proxy-port`)
 
 **Models:**
 - Vision LoRA: `qwen25_vl_7b_objdesc_lora/`

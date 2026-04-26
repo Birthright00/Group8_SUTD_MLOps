@@ -10,7 +10,7 @@ This proxy:
 Usage:
     python proxy_server.py
 
-Then update frontend config to use: http://localhost:4000/api/analyze
+The server automatically finds an available port and displays it on startup.
 """
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -92,15 +92,32 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def find_free_port(start=4000, end=4100):
+    """Find an available port in the given range."""
+    import socket
+    for port in range(start, end):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('0.0.0.0', port))
+                return port
+        except OSError:
+            continue
+    raise RuntimeError(f"No free port found in range {start}-{end}")
+
 if __name__ == '__main__':
+    import os
+    port = find_free_port()
+
+    # Write port to file so frontend can read it
+    port_file = os.path.join(os.path.dirname(__file__), '.proxy-port')
+    with open(port_file, 'w') as f:
+        f.write(str(port))
+
     print("=" * 60)
     print("CORS Proxy Server Starting...")
     print("=" * 60)
-    print("\nThis proxy bypasses browser CORS limitations")
-    print("and handles Modal cold starts (4-6 minutes)\n")
-    print("Update frontend config:")
-    print("  USE_MODAL: false")
-    print("  LOCAL_ANALYZE_URL: 'http://localhost:4000/api/analyze'")
+    print(f"\nRunning on port: {port}")
+    print("Port saved to .proxy-port for frontend auto-discovery")
     print("\nPress Ctrl+C to stop")
     print("=" * 60)
 
@@ -112,4 +129,4 @@ if __name__ == '__main__':
         print("Install with: pip install flask flask-cors")
         sys.exit(1)
 
-    app.run(host='0.0.0.0', port=4000, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)

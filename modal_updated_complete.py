@@ -222,10 +222,14 @@ def resolve_style_key(user_prompt: str) -> str | None:
 
 
 def resolve_style_guidance(user_prompt: str) -> dict:
-    """Pick a style guidance block by scanning the user's prompt for a known style keyword or alias."""
-    style_key = resolve_style_key(user_prompt)
-    if style_key:
-        return STYLE_GUIDANCE[style_key]
+    """Pick a style guidance block by scanning the user's prompt for a known style keyword or alias.
+
+    NOTE: Style guidance disabled - letting the fine-tuned chatbot generate its own vocabulary.
+    To re-enable, uncomment the lines below.
+    """
+    # style_key = resolve_style_key(user_prompt)
+    # if style_key:
+    #     return STYLE_GUIDANCE[style_key]
     return STYLE_GUIDANCE_FALLBACK
 
 
