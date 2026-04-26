@@ -1,0 +1,3 @@
+[submodule "interior_image_generator"]
+	path = interior_image_generator
+	url = https://github.com/LZ-sudo/interior_image_generator.git

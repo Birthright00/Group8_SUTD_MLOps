@@ -1,0 +1,33 @@
+{
+  "name": "interior-design-ai",
+  "version": "1.0.0",
+  "description": "AI-powered interior design style transformation tool",
+  "scripts": {
+    "install:all": "npm install && cd server && npm install && cd ../frontend && npm install && cd ..",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev:ml": "python run.py",
+    "dev": "concurrently \"npm run dev:ml\" \"npm run dev:server\" \"npm run dev:frontend\"",
+    "start": "cd server && npm start",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "train:dataset": "node train.js dataset",
+    "train:finetune": "node train.js finetune",
+    "train:status": "node train.js status",
+    "train:info": "node train.js info"
+  },
+  "keywords": [
+    "interior-design",
+    "ai",
+    "image-analysis",
+    "style-transformation",
+    "react",
+    "nodejs",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

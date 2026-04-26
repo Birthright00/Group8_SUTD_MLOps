@@ -1,0 +1,27 @@
+# Core ML libraries
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+transformers>=4.40.0
+accelerate>=0.28.0
+bitsandbytes>=0.42.0
+sentencepiece>=0.2.0
+qwen-vl-utils>=0.0.8
+peft>=0.10.0  # For LoRA adapters
+
+# Image processing
+Pillow>=10.0.0
+
+# Web framework
+Flask>=3.0.0
+Flask-CORS>=4.0.0
+Werkzeug>=3.0.0
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Serverless deployment
+modal>=1.4.0
+
+# Optional: For production deployment
+# gunicorn>=21.0.0
