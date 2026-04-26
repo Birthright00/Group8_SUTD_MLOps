@@ -16,11 +16,46 @@ git submodule update --init --recursive
 
 This pulls the `interior_image_generator/` directory from its separate repository.
 
-**Important:** You also need to create `interior_image_generator/.env` with your HuggingFace token:
+### Environment Variables Setup
+
+This project requires `.env` files in three locations:
+
+**1. Root `.env`** (optional — for local Flask development)
 ```bash
+# Copy from .env.example
+cp .env.example .env
+```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FLASK_ENV` | `development` | Flask environment mode |
+| `FLASK_DEBUG` | `True` | Enable Flask debug mode |
+| `HOST` | `0.0.0.0` | Server bind address |
+| `PORT` | `5000` | Server port |
+| `MAX_FILE_SIZE` | `10485760` | Max upload size (10MB) |
+
+**2. Frontend `.env`** (required for frontend to work)
+```bash
+cd frontend
+cp .env.example .env
+```
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_USE_MODAL` | Yes | `false` for local proxy, `true` for direct Modal |
+| `VITE_MODAL_ANALYZE_URL` | If direct Modal | Your Modal analyze endpoint URL |
+| `VITE_MODAL_CHAT_URL` | If direct Modal | Your Modal chat endpoint URL |
+| `VITE_MODAL_EDIT_IMAGE_URL` | If direct Modal | Your Modal edit endpoint URL |
+
+**3. Image Generator `.env`** (required for FLUX inpainting)
+```bash
+# Create manually — this file is gitignored
 # interior_image_generator/.env
 HF_TOKEN=your_huggingface_token_here
 ```
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `HF_TOKEN` | Yes | HuggingFace token with access to FLUX.1-Fill-dev |
+
+> **Note:** Get your HuggingFace token from https://huggingface.co/settings/tokens. You need to accept the FLUX.1-Fill-dev license at https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev before using the token.
 
 ### REQUIRED: Three Components
 
@@ -59,7 +94,7 @@ Run once, or when backend code changes.
 
 **Then Open Browser**
 ```
-http://localhost:3002
+http://localhost:3000
 ```
 
 ---
