@@ -2,6 +2,26 @@
 
 ## Quick Start: What to Run
 
+### First-Time Setup: Clone with Submodules
+
+This repository uses a git submodule for the image generation pipeline. Clone with submodules:
+
+```bash
+# Option 1: Clone with submodules in one command
+git clone --recurse-submodules https://github.com/YOUR_USERNAME/Group8_SUTD_MLOps.git
+
+# Option 2: If already cloned, initialize the submodule
+git submodule update --init --recursive
+```
+
+This pulls the `interior_image_generator/` directory from its separate repository.
+
+**Important:** You also need to create `interior_image_generator/.env` with your HuggingFace token:
+```bash
+# interior_image_generator/.env
+HF_TOKEN=your_huggingface_token_here
+```
+
 ### REQUIRED: Three Components
 
 **Terminal 1: Proxy Server (START FIRST)**
@@ -356,7 +376,7 @@ interior-LLM-analysis/
 +-- qwen-interior-design-qlora/   Chatbot model LoRA weights
 |   +-- final-adapter/
 |
-+-- interior_image_generator/      Image generation utilities
++-- interior_image_generator/      Image generation utilities (git submodule)
     +-- pipeline/
     |   +-- edit_orchestrator.py  Coordinates detection + inpainting
     |   +-- detection_and_segmentation.py  Grounding DINO + SAM2
@@ -911,7 +931,7 @@ every time the file is edited. Grep for the symbol in the file.
 **Models:**
 - Vision LoRA: `qwen25_vl_7b_objdesc_lora/`
 - Chatbot LoRA: `qwen-interior-design-qlora/final-adapter/`
-- Image generator: `interior_image_generator/`
+- Image generator: `interior_image_generator/` (git submodule)
 
 ---
 

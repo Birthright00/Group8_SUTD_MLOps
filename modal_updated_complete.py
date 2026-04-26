@@ -587,6 +587,43 @@ def build_analysis_prompt(vlm: dict) -> str:
     )
 
 
+def _repair_json(raw_json: str) -> str:
+    """
+    Attempt to repair common JSON malformations from LLM output.
+
+    Fixes:
+      - Missing commas between key-value pairs (e.g., `"a": "b" "c": "d"`)
+      - Trailing commas before closing braces
+      - Truncated strings (adds closing quote)
+      - Truncated objects (adds closing brace)
+    """
+    import re
+
+    s = raw_json.strip()
+
+    # Fix missing commas: `"value" "key"` → `"value", "key"`
+    # Pattern: end of string value followed by start of new key without comma
+    s = re.sub(r'"\s*\n\s*"', '",\n"', s)
+    s = re.sub(r'"\s+"(?=[a-zA-Z_])', '", "', s)
+
+    # Fix trailing commas before closing brace
+    s = re.sub(r',\s*}', '}', s)
+
+    # Handle truncated output: count quotes to see if we need to close a string
+    quote_count = s.count('"') - s.count('\\"')
+    if quote_count % 2 == 1:
+        # Odd number of quotes — string was truncated, close it
+        s = s.rstrip() + '"'
+
+    # Ensure object is closed
+    open_braces = s.count('{')
+    close_braces = s.count('}')
+    if open_braces > close_braces:
+        s = s.rstrip().rstrip(',') + '}' * (open_braces - close_braces)
+
+    return s
+
+
 def extract_polished_prompts(
     review_markdown: str,
     objects,
@@ -645,17 +682,29 @@ def extract_polished_prompts(
         review_markdown,
     )
     if json_match:
+        raw_json = json_match.group(1)
+        blob = None
+
+        # Try parsing raw JSON first
         try:
-            blob = json.loads(json_match.group(1))
-            if isinstance(blob, dict):
-                for obj in objects:
-                    value = blob.get(obj)
-                    if isinstance(value, str):
-                        cleaned = " ".join(value.split()).strip()
-                        if _accept_polished(obj, cleaned):
-                            polished[obj] = cleaned
+            blob = json.loads(raw_json)
         except (json.JSONDecodeError, ValueError) as exc:
-            print(f"[WARN] Polish JSON block failed to parse ({exc}); falling back to markdown regex")
+            # Attempt repair and retry
+            print(f"[INFO] JSON parse failed ({exc}); attempting repair...")
+            try:
+                repaired = _repair_json(raw_json)
+                blob = json.loads(repaired)
+                print("[INFO] JSON repair successful")
+            except (json.JSONDecodeError, ValueError) as exc2:
+                print(f"[WARN] JSON repair also failed ({exc2}); falling back to markdown regex")
+
+        if isinstance(blob, dict):
+            for obj in objects:
+                value = blob.get(obj)
+                if isinstance(value, str):
+                    cleaned = " ".join(value.split()).strip()
+                    if _accept_polished(obj, cleaned):
+                        polished[obj] = cleaned
 
     # --- Path 2: markdown regex (fills gaps only) ---
     for obj in objects:
@@ -1106,7 +1155,7 @@ class InteriorChatbot:
         with torch.no_grad():
             output_ids = self.model.generate(
                 **inputs,
-                max_new_tokens=1400,  # fits JSON-first block (~30 tokens/object) + short summary, with generous buffer
+                max_new_tokens=2000,  # increased buffer for rooms with many objects
                 temperature=0.75,
                 top_p=0.92,
                 do_sample=True,
@@ -1132,7 +1181,7 @@ class InteriorChatbot:
     image=image_gen_image,
     gpu="A100-80GB",  # FLUX needs 80GB
     secrets=[modal.Secret.from_dotenv(path="interior_image_generator/.env")],
-    timeout=2400,  # 40 minutes — matches outer endpoint ceiling so the class timeout doesn't cut short a long sequential edit
+    timeout=3600,  # 60 minutes — matches outer endpoint ceiling so the class timeout doesn't cut short a long sequential edit
     scaledown_window=600,
 )
 class ImageGenerator:
@@ -1551,7 +1600,7 @@ def run_analysis_pipeline(image_bytes: bytes, prompt: str) -> dict:
 
 @app.function(
     image=llm_image,
-    timeout=2400  # 40 minutes — matches the proxy and frontend fetch ceilings
+    timeout=3600  # 60 minutes — matches the proxy and frontend fetch ceilings
 )
 @modal.asgi_app()
 def analyze():
@@ -1767,7 +1816,7 @@ def chat(request: dict):
 
 @app.function(
     image=llm_image,
-    timeout=2400  # 40 minutes — matches the proxy and frontend fetch ceilings
+    timeout=3600  # 60 minutes — matches the proxy and frontend fetch ceilings
 )
 @modal.fastapi_endpoint(method="POST")
 def complete_pipeline(request: dict):

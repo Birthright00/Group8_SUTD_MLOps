@@ -34,7 +34,7 @@ const fetchWithTimeout = async (url, options = {}, timeoutMs = 1200000) => {
   } catch (error) {
     clearTimeout(timeout);
     if (error.name === 'AbortError') {
-      throw new Error('Request timed out after 40 minutes. Sequential multi-object editing is long (~10-20 min typical, plus up to 6 min cold start). Check Modal logs to see where it stopped.');
+      throw new Error('Request timed out after 60 minutes. Sequential multi-object editing is long (~10-20 min typical, plus up to 6 min cold start). Check Modal logs to see where it stopped.');
     }
     throw error;
   }
@@ -63,7 +63,7 @@ export const analyzeImage = async (imageFile, prompt) => {
     // (INPAINT_CFG.iterations_per_object * num_objects * ~20s per pass).
     const url = getAnalyzeUrl();
     console.log('🌐 [Frontend] Calling endpoint:', url);
-    console.log('⏰ [Frontend] Timeout set to 40 minutes');
+    console.log('⏰ [Frontend] Timeout set to 60 minutes');
 
     const response = await fetchWithTimeout(url, {
       method: 'POST',
@@ -76,7 +76,7 @@ export const analyzeImage = async (imageFile, prompt) => {
         generate_images: true,  // Enable image generation
         edit_objects: []  // Will be filled after we get suggestions
       }),
-    }, 2400000); // 40 minutes — matches proxy_server.py and modal_updated_complete.py ceilings
+    }, 3600000); // 60 minutes — matches proxy_server.py and modal_updated_complete.py ceilings
 
     console.log('📡 [Frontend] Response status:', response.status);
 

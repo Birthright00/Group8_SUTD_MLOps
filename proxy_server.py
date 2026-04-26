@@ -45,7 +45,7 @@ def analyze():
         response = requests.post(
             MODAL_ENDPOINTS['analyze'],
             json=data,
-            timeout=2400  # 40 minutes
+            timeout=3600  # 60 minutes
         )
 
         print(f"[PROXY] Got response from Modal: {response.status_code}")
@@ -68,8 +68,8 @@ def analyze():
         return jsonify(response_data), response.status_code
 
     except requests.exceptions.Timeout:
-        print("[PROXY] ERROR: Timeout after 40 minutes")
-        return jsonify({"error": "Request timeout after 40 minutes"}), 504
+        print("[PROXY] ERROR: Timeout after 60 minutes")
+        return jsonify({"error": "Request timeout after 60 minutes"}), 504
 
     except Exception as e:
         print(f"[PROXY] ERROR: {e}")
