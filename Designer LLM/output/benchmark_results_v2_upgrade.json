@@ -1,0 +1,668 @@
+{
+  "timestamp": "2026-04-24T18:42:12.069386",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_runs_per_style": 3,
+  "results": {
+    "japanese": {
+      "runs": [
+        {
+          "run": 1,
+          "output": "- **Desk**: A traditional low chabudai table made of solid wood, with a smooth surface finish.\n- **Chair**: A zabuton floor cushion, featuring soft fabric texture and minimalist design.\n- **Bed**: A futon mattress covered in luxurious silk, with intricate patterns and a deep, rich color.\n- **Window**: Paper shoji screens installed over the window, allowing light to filter through while blocking direct sunlight.\n- **Track Lighting**: Suspended paper lanterns, casting warm, ambient lighting throughout the room.\n- **Shelving Unit**: A built-in bamboo shelf, adorned with subtle geometric patterns and polished edges.\n- **Plant**: A small bonsai tree placed in a sleek, white ceramic pot, adding a touch of elegance to the space.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 0.0,
+            "specific_count": 0,
+            "generic_count": 1,
+            "found": []
+          },
+          "speed": {
+            "elapsed_s": 20.84,
+            "tokens": 158,
+            "tok_per_s": 7.6
+          }
+        },
+        {
+          "run": 2,
+          "output": "- **Desk**: A traditional low chabudai table made of dark wood, featuring intricate grain patterns.\n  \n- **Chair**: A soft beige seat wrapped in velvet, adorned with delicate embroidery, offering a serene backdrop for reading or working at home.\n  \n- **Bed**: A futon mattress covered in richly woven indigo fabric, creating a cozy atmosphere perfect for intimate moments or leisurely naps.\n  \n- **Window**: Paper shoji screens installed over the large window, allowing filtered sunlight to stream in gently through the lattice openings, enhancing visual comfort and tranquility.\n  \n- **Track Lighting**: Hanging paper lanterns illuminated by warm candlelight, casting gentle shadows on the room's walls, adding warmth and elegance.\n  \n- **Shelving Unit**: A beautifully crafted bamboo shelf unit arranged neatly along one wall, showcasing a collection of books, antiques, and decorative items in a symmetrical layout, providing ample storage space while also serving as a focal point in the room.\n  \n- **Plant**: A small, miniature bonsai tree planted in a glazed ceramic pot, its branches gracefully reaching towards the light, filling the space with a hint of nature's beauty.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 1,
+            "generic_count": 0,
+            "found": [
+              "velvet"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 32.81,
+            "tokens": 239,
+            "tok_per_s": 7.3
+          }
+        },
+        {
+          "run": 3,
+          "output": "- Desk: A traditional low chabudai table made of solid wood, showcasing its deep grain texture.\n- Chair: A zabuton floor cushion featuring subtle geometric patterns in rich charcoal tones.\n- Bed: A futon mattress wrapped in delicate blue silk, revealing the intricate weave beneath the quilted coverlet.\n- Window: Paper shoji screens gently swaying in the breeze, allowing light to filter through without glare.\n- Track Lighting: A row of handcrafted paper lanterns hanging gracefully from the ceiling, casting soft shadows across the room.\n- Shelving Unit: A custom-built bamboo shelf unit, intricately carved and finished with dark lacquer, displaying seasonal blooms in small vases.\n- Plant: A miniature bonsai tree standing proud in a shallow, polished-glazed ceramic pot, its slender branches reaching towards the sky.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 1,
+            "generic_count": 0,
+            "found": [
+              "lacquer"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 22.43,
+            "tokens": 170,
+            "tok_per_s": 7.6
+          }
+        }
+      ],
+      "summary": {
+        "completeness_mean": 1.0,
+        "completeness_stdev": 0.0,
+        "specificity_mean": 0.667,
+        "specificity_stdev": 0.577,
+        "speed_mean_s": 25.36,
+        "speed_stdev_s": 6.5
+      }
+    },
+    "victorian": {
+      "runs": [
+        {
+          "run": 1,
+          "output": "- Desk: A large ornate writing desk with carved dark mahogany legs.\n- Chair: A tufted wingback chair in deep burgundy velvet.\n- Bed: A four-poster bed with heavy damask drapes.\n- Window: Floor-length velvet curtains with brass tiebacks.\n- Track Lighting: A brass chandelier with frosted glass globe shades.\n- Shelving Unit: A dark walnut bookcase with glass doors and brass hardware.\n- Plant: A large fern in a brass jardini\u00e8re stand.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 9,
+            "generic_count": 0,
+            "found": [
+              "velvet",
+              "mahogany",
+              "walnut",
+              "brass",
+              "damask"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 14.67,
+            "tokens": 107,
+            "tok_per_s": 7.3
+          }
+        },
+        {
+          "run": 2,
+          "output": "- Desk: An ornate writing desk with carved dark mahogany legs, extending over two meters, sits at the foot of the bed.\n- Chair: A tufted wingback chair in deep burgundy velvet envelops its occupant, casting shadows across the room.\n- Bed: A four-poster bed with heavy damask drapes, adorned with silk valances, offers ample space for intimate conversation.\n- Window: Floor-length velvet curtains with brass tiebacks frame the view outside, creating a sense of privacy and depth.\n- Track Lighting: A brass chandelier with frosted glass globe shades hangs from the ceiling, casting soft, warm light through the room.\n- Shelving Unit: A dark walnut bookcase with glass doors and brass hardware stands against one wall, displaying books and collectibles.\n- Plant: A large fern in a brass jardini\u00e8re stand rests on the windowsill, adding a touch of nature to the decor.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 9,
+            "generic_count": 0,
+            "found": [
+              "velvet",
+              "mahogany",
+              "walnut",
+              "brass",
+              "damask"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 25.93,
+            "tokens": 192,
+            "tok_per_s": 7.4
+          }
+        },
+        {
+          "run": 3,
+          "output": "- **Desk**: An ornate writing desk with carved dark mahogany legs.\n- **Chair**: A tufted wingback chair in deep burgundy velvet.\n- **Bed**: A four-poster bed with heavy damask drapes.\n- **Window**: Floor-length velvet curtains with brass tiebacks.\n- **Track Lighting**: A brass chandelier with frosted glass globe shades.\n- **Shelving Unit**: A dark walnut bookcase with glass doors and brass hardware.\n- **Plant**: A large fern in a brass jardini\u00e8re stand.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 9,
+            "generic_count": 0,
+            "found": [
+              "velvet",
+              "mahogany",
+              "walnut",
+              "brass",
+              "damask"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 15.93,
+            "tokens": 114,
+            "tok_per_s": 7.2
+          }
+        }
+      ],
+      "summary": {
+        "completeness_mean": 1.0,
+        "completeness_stdev": 0.0,
+        "specificity_mean": 1.0,
+        "specificity_stdev": 0.0,
+        "speed_mean_s": 18.84,
+        "speed_stdev_s": 6.17
+      }
+    },
+    "modern": {
+      "runs": [
+        {
+          "run": 1,
+          "output": "Desk: A wall-mounted floating desk in white lacquer, sleek and modern.\n\nChair: A moulded shell chair on slim hairpin legs, elegant yet understated.\n\nBed: A low platform bed with an upholstered light grey headboard, clean lines and minimalistic design.\n\nWindow: Floor-to-ceiling roller blinds in warm white, allowing plenty of natural light while enhancing privacy.\n\nTrack Lighting: Recessed LED spotlights flush to the ceiling, creating a sophisticated ambient glow without distracting from the room's overall aesthetic.\n\nShelving Unit: Modular open shelving system in white powder-coated steel, functional and stylish at the same time.\n\nPlant: Single sculptural cactus in a concrete planter, adding unique texture and interest to the space.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 0.75,
+            "specific_count": 3,
+            "generic_count": 1,
+            "found": [
+              "lacquer",
+              "powder-coated",
+              "steel"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 20.54,
+            "tokens": 153,
+            "tok_per_s": 7.4
+          }
+        },
+        {
+          "run": 2,
+          "output": "1. Desk: A floating wall-mounted desk made from solid oak veneer in a deep walnut shade, featuring geometric patterned drawers.\n2. Chair: A sleek, narrow metal frame molded shell seat in matte black lacquer with polished brass accents.\n3. Bed: A spacious, low-profile bed with a smooth grey finish, framed by a softly padded quilted velvet headboard.\n4. Window: Floor-to-ceiling roller blinds in a rich cream hue, allowing natural light to stream through the glass panels while blocking harsh afternoon sun.\n5. Track Lighting: Recessed LED spotlights mounted flush to the ceiling, casting a soft, ambient glow throughout the room without any visible fixtures.\n6. Shelving Unit: A contemporary open shelf system made of white powder-coated steel with clean lines and minimalistic shape.\n7. Plant: A striking sculpture-like cactus in a modern concrete planter, standing tall at one end of the room with its sharp spine piercing through the surface.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 7,
+            "generic_count": 0,
+            "found": [
+              "powder-coated",
+              "oak",
+              "velvet",
+              "walnut",
+              "brass",
+              "steel",
+              "lacquer"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 27.19,
+            "tokens": 200,
+            "tok_per_s": 7.4
+          }
+        },
+        {
+          "run": 3,
+          "output": "Desk: A wall-mounted floating desk in white lacquer, sleek lines and minimalistic design.\n\nChair: A moulded shell chair on slim hairpin legs, clean lines and understated elegance.\n\nBed: A low platform bed with an upholstered light grey headboard, soft curves and cozy comfort.\n\nWindow: Floor-to-ceiling roller blinds in warm white, contemporary sophistication.\n\nTrack Lighting: Recessed LED spotlights flush to the ceiling, subtle illumination and visual interest.\n\nShelving Unit: Modular open shelving system in white powder-coated steel, functional storage and unique aesthetic.\n\nPlant: Single sculptural cactus in a concrete planter, striking contrast and bold statement.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 3,
+            "generic_count": 0,
+            "found": [
+              "lacquer",
+              "powder-coated",
+              "steel"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 18.52,
+            "tokens": 138,
+            "tok_per_s": 7.5
+          }
+        }
+      ],
+      "summary": {
+        "completeness_mean": 1.0,
+        "completeness_stdev": 0.0,
+        "specificity_mean": 0.917,
+        "specificity_stdev": 0.144,
+        "speed_mean_s": 22.08,
+        "speed_stdev_s": 4.54
+      }
+    },
+    "scandinavian": {
+      "runs": [
+        {
+          "run": 1,
+          "output": "Desk: A light birch desk with tapered solid wood legs, showcasing subtle grain patterns against a neutral backdrop.\n\nChair: A sheepskin-draped solid ash stool, adding texture through its unique materiality and inviting warmth from its soft padding.\n\nBed: A low ash frame with a white cotton duvet and knit throw, creating a warm and welcoming atmosphere with a mix of natural elements and cozy textures.\n\nWindow: Sheer undyed linen curtains that pool softly on the floor, providing ample natural light while allowing privacy.\n\nTrack Lighting: A white paper pendant lamp on a fabric cord, offering elegant yet understated illumination that enhances the room's aesthetic.\n\nShelving Unit: A floating light pine shelf with minimal objects, maintaining a minimalist yet sophisticated look by keeping the design clean and uncluttered.\n\nPlant: Eucalyptus stems in a simple matte ceramic vase, bringing a touch of greenery into the room and complementing the Scandinavian aesthetic with its organic shape.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 0.875,
+            "specific_count": 7,
+            "generic_count": 1,
+            "found": [
+              "linen",
+              "ash",
+              "birch",
+              "sheepskin",
+              "pine",
+              "cotton"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 27.04,
+            "tokens": 198,
+            "tok_per_s": 7.3
+          }
+        },
+        {
+          "run": 2,
+          "output": "Desk: A light birch desk with tapered solid wood legs, exuding warmth and elegance.\n\nChair: A sheepskin-draped solid ash stool, adding a touch of luxury and comfort.\n\nBed: A low ash frame with a white cotton duvet and knit throw, offering coziness and softness.\n\nWindow: Sheer undyed linen curtains that pool softly on the floor, creating a sense of intimacy and calm.\n\nTrack Lighting: A white paper pendant lamp on a fabric cord, enhancing the ambiance with a subtle glow.\n\nShelving Unit: A floating light pine shelf with minimal objects, creating a minimalist yet functional atmosphere.\n\nPlant: Eucalyptus stems in a simple matte ceramic vase, bringing life and freshness into the room.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 7,
+            "generic_count": 0,
+            "found": [
+              "linen",
+              "ash",
+              "birch",
+              "sheepskin",
+              "pine",
+              "cotton"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 20.95,
+            "tokens": 152,
+            "tok_per_s": 7.3
+          }
+        },
+        {
+          "run": 3,
+          "output": "- Desk: A sleek, modern desk made from smooth, unpolished birch with a minimalist finish.\n- Chair: An inviting sheepskin-draped stool featuring natural, warm tones and clean lines.\n- Bed: A soft, cozy bed enveloped by a thick, comfortable duvet and a plush throw pillow collection.\n- Window: Large, sheer curtains with drape-like folds that gently filter sunlight into the room.\n- Track Lighting: A unique, contemporary pendant lamp set against a neutral backdrop, casting gentle shadows on the walls.\n- Shelving Unit: A minimalist shelf made from light-colored pine, showcasing well-thought-out items without distractions.\n- Plant: An elegant eucalyptus branch adorned with a simple, glossy ceramic flower vase.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 0.75,
+            "specific_count": 3,
+            "generic_count": 1,
+            "found": [
+              "pine",
+              "sheepskin",
+              "birch"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 20.93,
+            "tokens": 154,
+            "tok_per_s": 7.4
+          }
+        }
+      ],
+      "summary": {
+        "completeness_mean": 1.0,
+        "completeness_stdev": 0.0,
+        "specificity_mean": 0.875,
+        "specificity_stdev": 0.125,
+        "speed_mean_s": 22.97,
+        "speed_stdev_s": 3.52
+      }
+    },
+    "industrial": {
+      "runs": [
+        {
+          "run": 1,
+          "output": "Desk: A reclaimed oak plank desk standing on black iron pipe legs, reminiscent of vintage utility tables.\n  \nChair: A metal factory stool with a worn leather seat pad, showcasing industrial textures and detailing.\n  \nBed: A black powder-coated steel bed frame adorned with visible hex bolts, emphasizing minimalistic aesthetic.\n  \nWindow: Steel-framed windows left bare to maximize natural light entering the room without obstructive shades or blinds.\n  \nTrack Lighting: Bare Edison bulb pendants suspended from black iron conduit pipes, creating a clean and contemporary lighting solution.\n  \nShelving Unit: Iron pipe brackets attached to the wall, supporting raw-edge reclaimed wood planks arranged neatly, adding depth and visual interest.\n  \nPlant: A tall snake plant nestled in a galvanised steel bucket, providing a bold statement of texture and functionality.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 9,
+            "generic_count": 0,
+            "found": [
+              "powder-coated",
+              "oak",
+              "galvanised",
+              "steel",
+              "iron"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 22.2,
+            "tokens": 165,
+            "tok_per_s": 7.4
+          }
+        },
+        {
+          "run": 2,
+          "output": "Desk: A reclaimed oak plank desk standing tall with sleek black iron pipe legs, creating a striking contrast.\n  \nChair: A metal factory stool featuring a worn leather seat pad, adding a unique industrial aesthetic.\n\nBed: A black powder-coated steel bed frame with visible hex bolts, emphasizing its minimalist and functional nature.\n\nWindow: Steel-framed windows remain bare to maximize natural light, letting in plenty of daylight.\n\nTrack Lighting: Bare Edison bulbs hang from black iron conduit pipes, creating a clean, modern look.\n\nShelving Unit: Iron pipe brackets support raw-edge reclaimed wood planks, allowing for a rustic yet modern feel.\n\nPlant: A tall snake plant is placed in a galvanised steel bucket, showcasing its vertical growth pattern.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 9,
+            "generic_count": 0,
+            "found": [
+              "powder-coated",
+              "oak",
+              "galvanised",
+              "steel",
+              "iron"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 20.82,
+            "tokens": 149,
+            "tok_per_s": 7.2
+          }
+        },
+        {
+          "run": 3,
+          "output": "Desk: A long wooden desk becomes a reclaimed oak plank desk on black iron pipe legs.\n\nChair: A simple beige chair transforms into a metal factory stool with a worn leather seat pad.\n\nBed: A white bed with a striped blanket evolves into a black powder-coated steel bed frame with visible hex bolts.\n\nWindow: The large window remains intact but is left bare to maximize natural light.\n\nTrack Lighting: Black track lighting fixtures become bare Edison bulb pendants on black iron conduit pipes.\n\nShelving Unit: Wooden shelving units on walls become iron pipe brackets holding raw-edge reclaimed wood planks.\n\nPlant: A potted plant on the windowsill moves to a tall snake plant in a galvanized steel bucket.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 7,
+            "generic_count": 0,
+            "found": [
+              "iron",
+              "steel",
+              "powder-coated",
+              "oak"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 19.24,
+            "tokens": 144,
+            "tok_per_s": 7.5
+          }
+        }
+      ],
+      "summary": {
+        "completeness_mean": 1.0,
+        "completeness_stdev": 0.0,
+        "specificity_mean": 1.0,
+        "specificity_stdev": 0.0,
+        "speed_mean_s": 20.75,
+        "speed_stdev_s": 1.48
+      }
+    },
+    "bohemian": {
+      "runs": [
+        {
+          "run": 1,
+          "output": "Desk: A distressed pine desk with a macrame-trimmed drawer pull.\n  \nChair: A rattan hanging egg chair with layered kilim cushions.\n  \nBed: A low divan layered with patterned textiles and throw pillows.\n  \nWindow: Sheer embroidered muslin curtains with tassel trim.\n  \nTrack Lighting: Warm string fairy lights and a woven rattan pendant.\n  \nShelving Unit: Mismatched reclaimed wood floating shelves with trailing plants.\n  \nPlant: Trailing pothos in a hanging macrame plant holder.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 3,
+            "generic_count": 0,
+            "found": [
+              "muslin",
+              "pine",
+              "kilim"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 14.87,
+            "tokens": 110,
+            "tok_per_s": 7.4
+          }
+        },
+        {
+          "run": 2,
+          "output": "Desk: A distressed pine desk with a macram\u00e9-trimmed drawer pull, standing tall against the wall, exudes a rustic charm reminiscent of homey cabins or cozy studios.\n\nChair: A rattan hanging egg chair with layered kilim cushions, its plush silhouette inviting guests to sit back and relax, surrounded by soft shadows cast by ambient light from above.\n\nBed: A low divan layered with patterned textiles and throw pillows, invitingly inviting one to sink into comfort and warmth, the soft glow of candles casting patterns on the floor.\n\nWindow: Sheer embroidered muslin curtains with tassels, framed in rich brown tones, allowing natural light to flow in, creating a sense of openness and movement.\n\nTrack Lighting: Warm string fairy lights and a woven rattan pendant, scattered across the ceiling, illuminating the room with a subtle glow, creating a harmonious ambience.\n\nShelving Unit: Mismatched reclaimed wood floating shelves with trailing plants, adorned with greenery in vibrant hues, adding a touch of nature to the serene atmosphere.\n\nPlant: A trailing pothos in a hanging macrame plant holder, cascading gracefully over the edge of the window sill, bringing life and energy to the space.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 3,
+            "generic_count": 0,
+            "found": [
+              "muslin",
+              "pine",
+              "kilim"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 34.23,
+            "tokens": 248,
+            "tok_per_s": 7.2
+          }
+        },
+        {
+          "run": 3,
+          "output": "- Desk: A distressed pine desk with a macram\u00e9-trimmed drawer pull.\n- Chair: A rattan hanging egg chair with layered kilim cushions.\n- Bed: A low divan layered with patterned textiles and throw pillows.\n- Window: Sheer embroidered muslin curtains with tassels.\n- Track Lighting: Warm string fairy lights and a woven rattan pendant.\n- Shelving Unit: Mismatched reclaimed wood floating shelves with trailing plants.\n- Plant: Trailing pothos in a hanging macram\u00e9 plant holder.",
+          "completeness": {
+            "score": 1.0,
+            "covered": [
+              "desk",
+              "chair",
+              "bed",
+              "window",
+              "track lighting",
+              "shelving unit",
+              "plant"
+            ],
+            "missing": []
+          },
+          "specificity": {
+            "score": 1.0,
+            "specific_count": 3,
+            "generic_count": 0,
+            "found": [
+              "muslin",
+              "pine",
+              "kilim"
+            ]
+          },
+          "speed": {
+            "elapsed_s": 14.96,
+            "tokens": 112,
+            "tok_per_s": 7.5
+          }
+        }
+      ],
+      "summary": {
+        "completeness_mean": 1.0,
+        "completeness_stdev": 0.0,
+        "specificity_mean": 1.0,
+        "specificity_stdev": 0.0,
+        "speed_mean_s": 21.35,
+        "speed_stdev_s": 11.15
+      }
+    }
+  }
+}
