@@ -29,7 +29,7 @@ HF_TOKEN=your_huggingface_token_here
 python proxy_server.py
 ```
 Expected output: `Running on port: 4000` (or next available port)
-Purpose: Handles 40-minute timeout covering Modal cold start + sequential editing
+Purpose: Handles 60-minute timeout covering Modal cold start + sequential editing
 Note: Auto-discovers an available port and writes it to `.proxy-port`
 
 **Terminal 2: Frontend (START AFTER PROXY)**
@@ -70,7 +70,7 @@ http://localhost:3002
 User Browser
     |
     v
-Local Proxy Server (auto-discovered port, Flask, 40-min timeout)
+Local Proxy Server (auto-discovered port, Flask, 60-min timeout)
     |
     v
 Modal Serverless GPUs — modal_updated_complete.py
@@ -195,12 +195,73 @@ Unknown styles fall back to a neutral `STYLE_GUIDANCE_FALLBACK` block that keeps
 
 ### Modal Backend ([modal_updated_complete.py](modal_updated_complete.py))
 
+<details>
+<summary><b>Module Docstring (Pipeline Overview)</b></summary>
+
+```
+Complete Modal deployment for Interior Design AI.
+
+Pipeline (chained — chatbot now feeds FLUX, no longer a side-channel):
+
+    [image + user style prompt]
+        |
+        v
+    VisionModel                  (Qwen2.5-VL-7B + VL LoRA, A100-40GB)
+        analyze_image        --> detected objects
+        generate_edits       --> edit_suggestions (draft, per-object)
+        |
+        v
+    InteriorChatbot              (Qwen2.5-1.5B + CHATBOT_QWEN_ADAPTOR, A100-40GB)
+        review_edit_plan     --> design_review.review_markdown
+                                 (structured per-object critique with materials,
+                                  textures, colours, lighting)
+        |
+        |   extract_polished_prompts()
+        |       parses the markdown's "Proposed:" lines
+        |       into polished_prompts = {object: enriched_fill_prompt}
+        |       misses fall back to raw VLM suggestion per-object
+        v
+    fill_prompts = {**edit_suggestions, **polished_prompts}  <-- what FLUX sees
+        |
+        v
+    ImageGenerator               (FLUX.1-Fill-dev + Grounding DINO + SAM2, A100-80GB)
+        edit_multiple_objects_sequential
+            for each object:
+                Grounding DINO -> box
+                SAM2           -> mask
+                FLUX           -> INPAINT_CFG.iterations_per_object refinement passes
+                                  (seed = INPAINT_CFG.seed + i)
+                next object starts from this object's final pass
+        |
+        v
+    edited_images { object_order, object_intermediates, iteration_details, final }
+
+All FLUX / mask / iteration knobs are centralised in INPAINT_CFG (InpaintConfig
+dataclass) so tuning happens in one place instead of across ~10 call sites.
+
+Endpoints:
+    POST /complete_pipeline   full chain, optionally generates images
+    POST /analyze             vision + chatbot + one-object image edit
+    POST /edit_image          direct detection -> segmentation -> inpainting
+    POST /chat                standalone chatbot
+
+Usage:
+    modal deploy modal_updated_complete.py
+```
+</details>
+
 **VisionModel** — Qwen2.5-VL-7B-Instruct + LoRA, A100-40GB
+
+> *Qwen2.5-VL-7B + VL LoRA, running on A100-40GB. Two responsibilities: `analyze_image` — detect household objects from a photo; `generate_edits` — draft a per-object "transform to this style" plan. Uses 4-bit NF4 quantisation (via bitsandbytes) so the 7B model fits in 40GB VRAM alongside the VL processor.*
+
 - LoRA weights: `qwen25_vl_7b_objdesc_lora/`
 - `analyze_image(image_bytes) -> {objects, room_type, scene_style, raw_output}`
 - `generate_edits(user_prompt, objects) -> {object_name: fill_prompt}`
 
 **InteriorChatbot** — Qwen2.5-1.5B-Instruct + LoRA, A100-40GB
+
+> *Qwen2.5-1.5B + CHATBOT_QWEN_ADAPTOR, running on A100-40GB. Fine-tuned on interior-design critiques. Takes a structured VLM payload (detected objects + draft edits) and returns a markdown review whose per-object `Proposed:` lines are the renderable prompts FLUX consumes. 4-bit NF4 quantised — tiny enough to share a 40GB GPU with the VLM.*
+
 - LoRA weights: `qwen-interior-design-qlora/final-adapter/`
 - `review_edit_plan(vlm_output) -> {review_markdown, analysis_prompt}`
 - Produces two things in one call: a markdown per-object critique, plus a
@@ -213,6 +274,9 @@ Unknown styles fall back to a neutral `STYLE_GUIDANCE_FALLBACK` block that keeps
   `build_analysis_prompt()`, keyed off the user's target style.
 
 **ImageGenerator** — FLUX.1-Fill-dev, A100-80GB
+
+> *FLUX.1-Fill-dev + Grounding DINO + SAM2, running on A100-80GB. Owns the full image-edit loop: Grounding DINO locates an object by name; SAM2 turns the bounding box into a binary mask; FLUX.1-Fill-dev inpaints the masked region with the given prompt. Public methods: `inpaint` (single-shot), `edit_object` (one-object multi-iteration), `edit_multiple_objects_sequential` (many-object cumulative editing). All inference knobs read from the module-level INPAINT_CFG; no magic numbers live inside the methods.*
+
 - Detection: Grounding DINO. Segmentation: SAM2.
 - `edit_multiple_objects_sequential(image_bytes, edit_plan, iterations_per_object)`
   runs the full per-object loop (detect → segment → FLUX refinement passes →
@@ -233,13 +297,14 @@ Unknown styles fall back to a neutral `STYLE_GUIDANCE_FALLBACK` block that keeps
 | `crop_padding` | 0.25 | Bbox padding as a fraction of width/height |
 | `iterations_per_object` | 10 | Refinement passes per object |
 
-**`extract_polished_prompts(review_markdown, objects)`** — two-path parser.
-First attempts to read the `<<<POLISH_JSON>>> { ... } <<<END_POLISH_JSON>>>`
-block the chatbot is asked to emit at the tail of its response; anything the
-JSON block missed is filled in by the original regex over `Proposed:` lines.
+**`extract_polished_prompts(review_markdown, objects)`** — two-path parser with
+automatic JSON repair. First attempts to read the `<<<POLISH_JSON>>> { ... } <<<END_POLISH_JSON>>>`
+block. If JSON parsing fails (missing commas, truncated output), `_repair_json()`
+attempts to fix common malformations before retrying. Falls back to regex-parsing
+the markdown's `Proposed:` lines if repair also fails.
 Returns only the objects parsed successfully, so callers can merge with
-`edit_suggestions` as a per-object fallback. Logs `[WARN]` for every miss
-and for any JSON parse failure.
+`edit_suggestions` as a per-object fallback. Logs `[INFO]` when repair succeeds,
+`[WARN]` when falling back to regex.
 
 **`strip_polish_sentinel(review_markdown)`** — removes the
 `<<<POLISH_JSON>>> { ... } <<<END_POLISH_JSON>>>` block from the chatbot's
@@ -268,6 +333,25 @@ fallback block if no key matches. Callers never reach into `STYLE_GUIDANCE`
 directly — they use `resolve_style_guidance(user_prompt)`,
 `build_chatbot_system_prompt(user_prompt)`, or `build_analysis_prompt(vlm)`.
 
+**Key Functions Reference:**
+
+| Function | Purpose |
+|----------|---------|
+| `resolve_style_key(user_prompt)` | Return the canonical style key detected from the user's prompt, if any. |
+| `resolve_style_guidance(user_prompt)` | Pick a style guidance block by scanning the user's prompt for a known style keyword or alias. |
+| `build_chatbot_system_prompt(user_prompt)` | Style-specific chatbot system prompt, built from STYLE_GUIDANCE. |
+| `build_object_fallback_prompt(user_prompt, object_name, object_desc)` | Create a richer fallback prompt than `<style> style <object>` when generation fails. |
+| `build_edit_generation_prompt(user_prompt, objects)` | Prompt the VLM to emit stable, per-object JSON drafts that the chatbot can polish. |
+| `_is_suffix_append(candidate, original_desc)` | True when the VLM lazily produced `<original description> + <suffix>`. |
+| `_is_style_poor(cleaned, user_prompt, guidance)` | True when the candidate fails to name a style-specific material/finish/colour. |
+| `parse_edit_suggestions_json(output_text, objects, user_prompt)` | Parse model JSON robustly and backfill missing / weak / style-poor entries. |
+| `build_vlm_output(vision_analysis, edit_suggestions, user_prompt)` | Normalize step 1 outputs into the structured payload expected by step 2. |
+| `build_analysis_prompt(vlm)` | Build the structured rewrite prompt for the chatbot model. |
+| `_repair_json(raw_json)` | Attempt to repair common JSON malformations from LLM output (missing commas, trailing commas, truncated strings). |
+| `extract_polished_prompts(review_markdown, objects)` | Two-path parser: JSON block first, then regex fallback for `Proposed:` lines. |
+| `strip_polish_sentinel(review_markdown)` | Remove the machine-readable JSON block from the review markdown before returning to frontend. |
+| `log_chatbot_polish(review_markdown, edit_suggestions, polished, fill_prompts)` | Debug logging for chatbot polish results. |
+
 **Why `object_order` is an explicit array in the response:**
 - Python 3.7+ dicts preserve insertion order, but JSON serialisation and
   cross-runtime parsers don't guarantee it.
@@ -285,7 +369,7 @@ directly — they use `resolve_style_guidance(user_prompt)`,
 **Configuration:**
 - Port: Auto-discovered (scans 4000-4100 for first available port)
 - Port file: `.proxy-port` (written on startup, read by Vite)
-- Timeout: 2400 seconds (40 minutes) — must match the frontend `fetchWithTimeout`
+- Timeout: 3600 seconds (60 minutes) — must match the frontend `fetchWithTimeout`
   value in `frontend/src/utils/api.js` and Modal's `@app.function(timeout=...)` on
   the `complete_pipeline` and `ImageGenerator` decorators.
 - Forwards to: Modal `complete_pipeline` endpoint.
@@ -353,37 +437,58 @@ VITE_MODAL_EDIT_IMAGE_URL=https://your-username--your-edit.modal.run
 ## File Structure
 
 ```
-interior-LLM-analysis/
+Group8_SUTD_MLOps/
 |
 +-- modal_updated_complete.py      Main Modal backend (all 3 AI models) — this is what deploys
-+-- modal_complete.py              Earlier / legacy backend kept for reference; not deployed
 +-- proxy_server.py                Local CORS proxy server (auto-discovers port)
 +-- deploy_utf8.py                 UTF-8 deployment wrapper (targets modal_updated_complete.py)
 +-- .proxy-port                    Auto-generated port file (gitignored)
++-- .env / .env.example            Environment variables (HF_TOKEN, etc.)
++-- requirements.txt               Python dependencies
++-- package.json                   Node.js package config
 +-- README.md                      This documentation file
++-- PROJECT.md                     Project overview and technical plan
++-- Final Report Group 8.pdf       Final project report
 |
 +-- frontend/                      React frontend application
-|   +-- .env                      Environment variables (gitignored)
-|   +-- .env.example              Template for .env
+|   +-- .env / .env.example       Environment variables (gitignored)
 |   +-- src/
 |   |   +-- App.jsx               Main UI component
 |   |   +-- utils/api.js          API communication layer (extracts object_order)
 |   |   +-- config.js             Configuration (reads from .env)
+|   |   +-- components/           UI components (ResultsScreen, Carousels, Tables)
 |   +-- package.json
 |   +-- vite.config.js            Vite config (reads proxy port from .proxy-port)
 |
-+-- qwen25_vl_7b_objdesc_lora/    Vision model LoRA weights
-+-- qwen-interior-design-qlora/   Chatbot model LoRA weights
++-- Base & Finetuning/             Training notebooks for model fine-tuning
+|   +-- WANDB_BEST_MODEL_Image_Analysis_To_JSON_and_Qwen_Finetune.ipynb   VLM LoRA training
+|   +-- interior_chatbot_v2_finetune.ipynb                                Chatbot LoRA training
+|
++-- Designer LLM/                  Designer LLM experiments and research
+|   +-- interior_chatbot_finetune.ipynb    Chatbot fine-tuning experiments
+|   +-- interior_chatbot_RAG.ipynb         RAG-based chatbot experiments
+|   +-- output/                            Training outputs
+|   +-- Techniques and methods/            Research documentation
+|
++-- WB Log Files/                  Weights & Biases training logs
+|   +-- QWEN/                      Qwen model training results and metrics
+|
++-- qwen25_vl_7b_objdesc_lora/     Vision model LoRA weights (trained adapter)
++-- qwen-interior-design-qlora/    Chatbot model LoRA weights
 |   +-- final-adapter/
 |
 +-- interior_image_generator/      Image generation utilities (git submodule)
-    +-- pipeline/
-    |   +-- edit_orchestrator.py  Coordinates detection + inpainting
-    |   +-- detection_and_segmentation.py  Grounding DINO + SAM2
-    |   +-- inpaint.py            FLUX.1-Fill-dev wrapper
-    |   +-- settings.py           Pipeline configuration
-    +-- utils/
-        +-- image.py               Image processing utilities
+|   +-- .env                       HuggingFace token (required, gitignored)
+|   +-- pipeline/
+|   |   +-- edit_orchestrator.py   Coordinates detection + inpainting
+|   |   +-- detection_and_segmentation.py  Grounding DINO + SAM2
+|   |   +-- inpaint.py             FLUX.1-Fill-dev wrapper
+|   |   +-- settings.py            Pipeline configuration
+|   +-- utils/
+|       +-- image.py               Image processing utilities
+|
++-- OLD AND NOT WORKING/           Legacy code kept for reference
+    +-- modal_complete.py          Earlier backend version (not deployed)
 ```
 
 ---
@@ -466,7 +571,7 @@ interior-LLM-analysis/
 - `final` — complete transformed image (identical to the last `object_intermediate`).
 
 ### Local Proxy: POST /api/analyze
-Forwards to Modal complete_pipeline with 40-minute timeout
+Forwards to Modal complete_pipeline with 60-minute timeout
 
 ---
 
